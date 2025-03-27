@@ -1,0 +1,64 @@
+import sqlite3
+
+def connect_db():
+    return sqlite3.connect("school.db")
+
+def create_table(cursor):
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS students (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            age INTEGER NOT NULL,
+            grade TEXT NOT NULL
+        )
+    ''')
+
+def add_record(cursor):
+    while True:
+        name = input("Zadejte jméno studenta: ")
+        age = int(input("Zadejte věk studenta: "))
+        grade = input("Zadejte třídu studenta: ")
+
+        cursor.execute("INSERT INTO students (name, age, grade) VALUES (?, ?, ?)", (name, age, grade))
+        print("Záznam byl přidán.")
+        
+        conn.commit()
+
+        another = input("Chceš přidat další záznam? (ano/ne): ").lower()
+        if another != "ano":
+            break
+
+def display_records(cursor):
+    cursor.execute("SELECT * FROM students")
+    rows = cursor.fetchall()
+    if rows:
+        print("Seznam studentů:")
+        for row in rows:
+            print(f"id = {row[0]}, name = {row[1]}, age = {row[2]}, grade = {row[3]}")
+    else:
+        print("Žádné záznamy nebyly nalezeny.")
+
+conn = connect_db()
+cursor = conn.cursor()
+
+create_table(cursor)
+
+while True:
+    print("Vyber:")
+    print("1. Přidat")
+    print("2. Vypsat")
+    print("3. Konec")
+
+    choice = input("Zadej: ")
+
+    if choice == "1":
+        add_record(cursor)
+    elif choice == "2":
+        display_records(cursor)
+    elif choice == "3":
+        print("Ukončuji program...")
+        break
+    else:
+        print("Neplatná volba, zkuste to znovu.")
+
+conn.close()
